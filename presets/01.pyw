@@ -12,14 +12,24 @@ class frame:
     def build(self):
         ...
 
-        self.obj0 = DirectButton(
+        self.obj0 = DirectFrame(
             parent=self.aspect2d,
-            pos=LPoint3f(-0.33, 0, 0.11),
-            scale=LVecBase3f(0.0974074, 0, 0.0974074),
+            pos=LPoint3f(0, 0, 0),
+            scale=LVecBase3f(0.241852, 0, 0.241852),
             color=(1, 1, 1, 1),
             relief=None,
             geom=None,
-            image=self.loader.loadTexture("01/textures/button1.png"),
+            image=self.loader.loadTexture("01/textures/frame2.png"),
+        )
+
+        self.obj2 = DirectFrame(
+            parent=self.aspect2d,
+            pos=LPoint3f(-0.56, 0, 0.48),
+            scale=LVecBase3f(0.241852, 0, 0.241852),
+            color=(1, 1, 1, 1),
+            relief=None,
+            geom=None,
+            image=self.loader.loadTexture("01/textures/frame2.png"),
         )
 
 

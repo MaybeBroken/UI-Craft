@@ -236,21 +236,21 @@ class Main(ShowBase):
     def spawnWindow(self):
         Thread(
             target=os.system,
-            args=["python3 presets/01.py"],
+            args=["pythonw presets/01.pyw"],
             daemon=True,
         ).start()
 
     def delete(self):
-        if self.selectedObject[0] != None:
+        if self.selectedObject[0] is not None:
+            obj_name = self.selectedObject[1]
             self.selectedObject[0].destroy()
+            del self.elements[obj_name]
+            del self.elements[obj_name + "-obj"]
             self.selectedObject = [None, None]
-            for element in self.elements.copy():
-                if element == self.selectedObject[1]:
-                    if len(self.elements) - 2 > 0 and element.endswith("-obj"):
-                        self.selectObjFromName(
-                            f'obj{int(element.split("obj")[1])-2}-obj'
-                        )
-                    del self.elements[element]
+            if len(self.elements) > 0:
+                last_element_name = sorted(self.elements.keys())[-1]
+                if last_element_name.endswith("-obj"):
+                    self.selectObjFromName(last_element_name)
 
     def selectObjFromButton(self, button):
         self.selectedObject = [self.elements[button + "-obj"], button]
@@ -480,6 +480,13 @@ class Main(ShowBase):
             frameSize=(1.05, 1.75, -1, 1),
             frameColor=(0.3, 0.3, 0.3, 1),
         )
+        self.changeElementImageFrame = DirectOptionMenu(
+            parent=self.elementOptionFrame,
+            pos=(1.1, 1, 0.8),
+            scale=0.05,
+            items=["no loaded images"],
+            command=self.imageManager,
+        )
         self.xIndicator = OnscreenImage(
             image=self.loader.loadTexture("src/textures/x.png"),
             scale=Vec3(3, 1, 0.0025),
@@ -508,6 +515,25 @@ class Main(ShowBase):
             command=self.addButton,
             relief=None,
         )
+        self.images = {}
+
+    def imageManager(self, index):
+        if len(self.images) == 0:
+            for image in os.listdir("src/textures"):
+                if image.endswith("_.png"):
+                    self.images[image] = {
+                        "obj": self.loader.loadTexture(f"src/textures/{image}"),
+                        "path": f"src/textures/{image}",
+                    }
+            if len(self.images) > 0:
+                self.changeElementImageFrame["items"] = [
+                    self.images[image]["path"].split("/")[-1] for image in self.images
+                ]
+        else:
+            try:
+                self.selectedObject[0].setTexture(self.images[index]["obj"], 1)
+            except KeyError:
+                pass
 
     def packObject(self, obj: baseElement) -> str:
         shutil.copy(
@@ -534,8 +560,9 @@ from panda3d.core import (
     LPoint3f,
     LVecBase4f,
     LPoint4f,
+    ConfigVariableString,
 )
-
+ConfigVariableString("notify-level", "fatal").setValue("fatal")
 
 class frame:
     def build(self):
@@ -567,7 +594,7 @@ if __name__ == "__main__":
 """
         )
         baseText = "".join(baseText)
-        with open("presets/01.py", "wt") as pyFile:
+        with open("presets/01.pyw", "wt") as pyFile:
             pyFile.writelines(baseText)
 
 
